@@ -12271,7 +12271,6 @@ animas
 animastic
 animastical
 animate
-animate
 animated
 animatedly
 animately
