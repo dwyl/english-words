@@ -15,5 +15,5 @@ Copyright still belongs to them.
 
 Files you may be interested in:
 
--  [words.txt](english-words/words.txt) contains all words.
--  [words_alpha.txt](english-words/words_alpha.txt) contains only [[:alpha]] words. If you want a quick solution choose this.
+-  [words.txt](words.txt) contains all words.
+-  [words_alpha.txt](words_alpha.txt) contains only [[:alpha:]] words. If you want a quick solution choose this.
