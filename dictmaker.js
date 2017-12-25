@@ -23,8 +23,6 @@ FS.readFile(SOURCE_PATH, 'utf8', function(err, content) {
 	
 	console.log('processing word list...');
 	
-	var words = content.split('\n');
-	
 	var dictionary = content
 	.split('\n')
 	.reduce(function(dct, line, i) {
