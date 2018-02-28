@@ -6,7 +6,9 @@ Created on Fri Feb 23 13:48:31 2018
 """
 
 import itertools, os
-os.chdir("C:\\Users\\karja")
+
+# locate your folder that contain words.txt
+os.chdir("C:\\Users\\user")
 
 # Open words.txt
 wor = open("words.txt","r")
