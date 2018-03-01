@@ -19,7 +19,7 @@ wor = [x[:-1] for x in wor]
 def look_w(word,num):
     
     # Getting words list according to number of letters 
-    mx = [wor[x] for x in range(len(wor)) if len(wor[x]) == num] 
+    mx = [wor[x] for x in range(len(wor)) if len(wor[x]) <= num] 
     
     # Create list of words that using itertools from the letters
     # and listing all words that relate to the word's letters.
@@ -41,5 +41,5 @@ def look_w(word,num):
     
     # Matching the created list words with the words in words.txt
     # and gather the the valid words
-    a = [a[i] for i in range(len(a)) if a[i] in wor or a[i].capitalize() in wor]
+    a = [a[i] for i in range(len(a)) if a[i] in mx or a[i].capitalize() in mx]
     return a
