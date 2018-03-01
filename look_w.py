@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Feb 23 13:48:31 2018
-
-@author: karja
-"""
-
 import itertools, os
 
 # locate your folder that contain words.txt
@@ -31,7 +24,7 @@ def look_w(word,num):
         for i in d:
             try:
                 v = len(d)
-                if d[i] == b[i]:
+                if d[i] <= b[i]:
                     z.append('ok')
             except:
                 pass
