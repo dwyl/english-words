@@ -34,5 +34,5 @@ def look_w(word,num):
     
     # Matching the created list words with the words in MX 
     # (words list from words.txt) and gather the valid words
-    a = list(set(a[i] for i in range(len(a)) if a[i] in mx or a[i].capitalize() in mx))
+    a = sorted(list(set(a[i] for i in range(len(a)) if a[i] in mx or a[i].capitalize() in mx)))
     return a
