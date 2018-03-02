@@ -32,7 +32,7 @@ def look_w(word,num):
                 if v == len(z):
                     a.append("".join(ele))
     
-    # Matching the created list words with the words in words.txt
-    # and gather the the valid words
-    a = [a[i] for i in range(len(a)) if a[i] in mx or a[i].capitalize() in mx]
+    # Matching the created list words with the words in MX 
+    # (words list from words.txt) and gather the valid words
+    a = list(set(a[i] for i in range(len(a)) if a[i] in mx or a[i].capitalize() in mx]))
     return a
