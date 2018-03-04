@@ -1,7 +1,11 @@
 import itertools, os
+from pathlib import Path
 
-# locate your folder that contain words.txt
-os.chdir("C:\\Users\\user")
+# Geting users home directory
+h_path = str(Path.home()) # + any addtional path to a folder that contain word.txt
+
+# Change directory to h_path where words.txt is located
+os.chdir(h_path)
 
 # Open words.txt
 wor = open("words.txt","r")
