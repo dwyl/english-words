@@ -3,7 +3,7 @@ import os, sys
 
 def load_words():
     try:
-        filename = os.path.dirname(sys.argv[0])+"\\"+"words_dictionary.json"
+        filename = os.path.join(os.getcwd(), "words_dictionary.json")
         with open(filename,"r") as english_dictionary:
             valid_words = json.load(english_dictionary)
             return valid_words
