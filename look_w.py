@@ -15,27 +15,32 @@ wor = [x[:-1] for x in wor]
 # by number of letters and alphabets
 def look_w(word,num):
     
-    # Getting words list according to number of letters 
-    mx = [wor[x] for x in range(len(wor)) if len(wor[x]) == num]
-    
-    # Listing all words that relate to the word's letters.
-    a = []
-    b = {word[c]:word.count(word[c]) for c in range(len(word))}
-    for ele in  mx:
-        elec = ele.lower()
-        d = {elec[c]:elec.count(elec[c]) for c in range(len(elec))}
-        z=[]
-        for i in d:
-            try:
-                v = len(d)
-                if d[i] <= b[i]:
-                    z.append('ok')
-            except:
-                pass
-            finally:
-                if v == len(z):
-                    a.append("".join(elec))
-    
-    # Sorted the words list
-    a = sorted(list(set(a)))
-    return a
+    # Checking total num against the total letters of word.
+    if num <= len(word):
+        
+        # Getting words list according to number of letters 
+        mx = [wor[x] for x in range(len(wor)) if len(wor[x]) == num]
+        
+        # Listing all words that relate to the word's letters.
+        a = []
+        b = {word[c]:word.count(word[c]) for c in range(len(word))}
+        for ele in  mx:
+            elec = ele.lower()
+            d = {elec[c]:elec.count(elec[c]) for c in range(len(elec))}
+            z=[]
+            for i in d:
+                try:
+                    v = len(d)
+                    if d[i] <= b[i]:
+                        z.append('ok')
+                except:
+                    pass
+                finally:
+                    if v == len(z):
+                        a.append("".join(elec))
+        
+        # Sorted the words list
+        a = sorted(list(set(a)))
+        return a
+    else:
+       return "⚔ Exceeding total letters ⚔".upper() 
