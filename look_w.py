@@ -16,14 +16,14 @@ wor = [x[:-1] for x in wor]
 def look_w(word,num):
     
     # Getting words list according to number of letters 
-    mx = [wor[x] for x in range(len(wor)) if len(wor[x]) <= num] 
+    mx = [wor[x] for x in range(len(wor)) if len(wor[x]) == num]
     
-    # Create list of words that using itertools from the letters
-    # and listing all words that relate to the word's letters.
+    # Listing all words that relate to the word's letters.
     a = []
     b = {word[c]:word.count(word[c]) for c in range(len(word))}
-    for ele in  itertools.product(word,repeat = num):
-        d = {ele[c]:ele.count(ele[c]) for c in range(len(ele))}
+    for ele in  mx:
+        elec = ele.lower()
+        d = {elec[c]:elec.count(elec[c]) for c in range(len(elec))}
         z=[]
         for i in d:
             try:
@@ -34,9 +34,8 @@ def look_w(word,num):
                 pass
             finally:
                 if v == len(z):
-                    a.append("".join(ele))
+                    a.append("".join(elec))
     
-    # Matching the created list words with the words in MX 
-    # (words list from words.txt) and gather the valid words
-    a = sorted(list(set(a[i] for i in range(len(a)) if a[i] in mx or a[i].capitalize() in mx)))
+    # Sorted the words list
+    a = sorted(list(set(a)))
     return a
