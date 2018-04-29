@@ -1,16 +1,11 @@
-import json
-import os, sys
-
 def load_words():
-    try:
-        filename = os.path.dirname(sys.argv[0])+"\\"+"words_dictionary.json"
-        with open(filename,"r") as english_dictionary:
-            valid_words = json.load(english_dictionary)
-            return valid_words
-    except Exception as e:
-        return str(e)
+    with open('words_alpha.txt') as word_file:
+        valid_words = set(word_file.read().split())
+
+    return valid_words
+
 
 if __name__ == '__main__':
     english_words = load_words()
     # demo print
-    print(english_words["fate"])
+    print('fate' in english_words)
