@@ -13,7 +13,7 @@ words = open('words.txt').read().split()
 def look_w(word,num):
     # Looking words that in the words list
     # by number of letters and alphabets
-    if num <= len(word):
+    if num <= len(word) and num != 0:
         return [w for w in words if len(w) == num and 
                 all(w.lower().count(c) <= word.lower().count(c) for c in w.lower())] 
     else:
