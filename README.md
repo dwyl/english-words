@@ -1,7 +1,7 @@
 english-words
 =============
 
-A text file containing 466k English words.
+A text file containing over 466k English words.
 
 While searching for a list of english words (for an auto-complete tutorial)
 I found: http://stackoverflow.com/questions/2213607/how-to-get-english-language-word-database which refers to ~~http://www.infochimps.com/datasets/word-list-350000-simple-english-words-excel-readable~~ (link no longer available).
