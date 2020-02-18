@@ -28,8 +28,8 @@
 # Usage: bash scripts/gen.sh
 
 sort -u words.txt -o words.txt
-cp words.txt words_alpha.txt
-grep -v '[[:alpha:]]*' words_alpha.txt
+# words_alpha (only alphabet chars, no numbers or punctuation)
+grep -v '[[:digit:]|[:punct:]]' words.txt > words_alpha.txt
 python3 scripts/create_json.py words_alpha.txt > words_dictionary.json
 rm *.zip
-find . -type f -name "words*" -maxdepth 1 -execdir zip '{}.zip' '{}' \;
+find . -type f -name "words*" -maxdepth 1 -execdir sh -c 'zip "${0%.*}.zip" "$0"' {} \;
