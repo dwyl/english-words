@@ -1,6 +1,5 @@
 english-words
 =============
-[![Run on Repl.it](https://repl.it/badge/github/dwyl/english-words)](https://repl.it/github/dwyl/english-words)
 A text file containing over 466k English words.
 
 While searching for a list of english words (for an auto-complete tutorial)
