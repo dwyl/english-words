@@ -1,6 +1,20 @@
-"""A script for gathering letter distribution statistics from a word list."""
+"""A script for gathering letter distribution statistics from a word list.
+
+The main public function, gather_stats(), can be used to gather letter
+statistics for a given word list file and write the contents of the statistic
+dictionaries to an INI file.
+
+If run as a script, the default word list is the dwyl English word dictionary
+"words_alpha.txt".
+"""
 
 import configparser
+
+# Define global consonant and vowel lists
+CONSONANTS = "bcdfghjklmnpqrstvwxyz"
+VOWELS = "aeiou"
+
+#==============================================================================
 
 def gather_stats(fin, fout, lb=None, ub=None):
     """gather_stats(fin, fout[, lb][, ub])
@@ -47,37 +61,49 @@ def gather_stats(fin, fout, lb=None, ub=None):
     # the number of letters is exactly 2. Entries of the form stats[n][3][p] or
     # stats[n][4][p] are empty unless n = 1.
 
-    # Define multidimensional array of statistic dictionaries
-    stats = [[[{} for p in range(4)] for t in range(5)] for n in range(5)]
-
     # Define character arrays for use in naming the dictionaries
     dic_numbers = [str(i) for i in range(1, 6)]
     dic_types = ["_a", "_c", "_v", "_cv", "_vc"]
     dic_pos = ["_a", "_b", "_e", "_m"]
-    
-    # Define consonant and vowel lists
-    consonants = "bcdfghjklmnpqrstvwxyz"
-    vowels = "aeiou"
+
+    # Define multidimensional array of statistic dictionaries
+    stats = [[[{} for p in range(len(dic_pos))] for t in range(len(dic_types))]
+             for n in range(len(dic_numbers))]
     
     # Read word list line-by-line and record statistics
     with open(fin, 'r') as f:
-        num = -1 # current word index
+        i = -1 # current word index
         for line in f:
-            num += 1
+            i += 1
             
             # Respect bounds
-            if (lb != None) and (num < lb):
+            if lb != None and i < lb:
                 continue
-            if (ub != None) and (num >= ub):
+            if ub != None and i >= ub:
                 break
 
             # Get current word
             word = line.strip()
 
             # Process each character
-            for c in word:
-                # Singleton statistics
-                pass
+            for j in range(len(word)):
+                # Determine if this is the beginning of the word
+                beg = False
+                if j == 0:
+                    beg = True
+                # Consider each valid substring length
+                for num in range(1, min(len(word)-j+1, len(dic_numbers)+1)):
+                    # Determine if this is the end of the word
+                    end = False
+                    if j + num >= len(word):
+                        end = True
+                    # Get the current substring
+                    ss = word[j:j+num]
+                    # Determine the types of letters
+                    cat = _categorize(ss) # set of valid type indices
+                    for t in cat:
+                        # Log in dictionary depending on position
+                        pass
 
             ###
             print(str(num) + ": " + word)
@@ -91,6 +117,58 @@ def gather_stats(fin, fout, lb=None, ub=None):
 
     del config
 
+#==============================================================================
+
+def _categorize(s):
+    """_categorize(s) -> set
+    Determines the letter type category of a string.
+
+    Positional arguments:
+    s (str) -- string to categorize
+
+    Returns:
+    (set) -- set of type categories to which the string belongs (0 for any, 1
+               for consonant only, 2 for vowel only, 3 for consonant/vowel
+               pair, 4 for vowel/consonant pair)
+    """
+
+    # Verify that the string is not empty
+    if len(s) < 1:
+        return set()
+
+    # Initialize result set
+    cat = {0} # category 0 is always included
+
+    # Test if all letters are consonants
+    test = True
+    for c in s:
+        if c not in CONSONANTS:
+            test = False
+            break
+    if test == True:
+        cat.add(1)
+
+    # Test if all letters are vowels
+    test = True
+    for c in s:
+        if c not in VOWELS:
+            test = False
+            break
+    if test == True:
+        cat.add(2)
+
+    # Test if the substring is a consonant/vowel pair
+    if len(s) == 2:
+        if s[0] in CONSONANTS and s[1] in VOWELS:
+            cat.add(3)
+        if s[0] in VOWELS and s[1] in CONSONANTS:
+            cat.add(4)
+
+    # Return the complete category set
+    return cat
+
+#==============================================================================
+
 # Automatically process dwyl dictionary
 if __name__ == "__main__":
-    gather_stats("words_alpha.txt", "word_statistics.ini", ub=10)
+    gather_stats("words_alpha.txt", "word_statistics.ini", lb=5, ub=6)
