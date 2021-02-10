@@ -8,9 +8,8 @@ If run as a script, the default word list is the dwyl English word dictionary
 "words_alpha.txt".
 """
 
-### To add: Exclude entries that alternate between C and V
-
 import configparser
+import time
 
 # Define global consonant and vowel lists
 CONSONANTS = "bcdfghjklmnpqrstvwxyz"
@@ -76,6 +75,9 @@ def gather_stats(fin, fout, lb=None, ub=None, threshold=0, empty=False,
     # Note that types 3 and 4 (for consonant/vowel pairs) are only defined when
     # the number of letters is exactly 2. Entries of the form stats[n][3][p] or
     # stats[n][4][p] are empty unless n = 1.
+
+    # Start timer
+    start = time.time()
 
     # Define character arrays for use in naming the dictionaries
     dic_numbers = [str(i) for i in range(1, 6)]
@@ -205,6 +207,10 @@ def gather_stats(fin, fout, lb=None, ub=None, threshold=0, empty=False,
                 com += line
         with open(fout, 'w') as f:
             f.writelines(com[:-1])
+
+    # Report total time
+    print("Processed '" + fin + "' after " + str(time.time() - start) +
+          " seconds.")
 
 #==============================================================================
 
