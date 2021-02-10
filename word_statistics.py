@@ -8,6 +8,8 @@ If run as a script, the default word list is the dwyl English word dictionary
 "words_alpha.txt".
 """
 
+### To add: Exclude entries that alternate between C and V
+
 import configparser
 
 # Define global consonant and vowel lists
@@ -16,8 +18,10 @@ VOWELS = "aeiou"
 
 #==============================================================================
 
-def gather_stats(fin, fout, lb=None, ub=None):
-    """gather_stats(fin, fout[, lb][, ub])
+def gather_stats(fin, fout, lb=None, ub=None, threshold=0, empty=False,
+                 alternate=True, comments=True):
+    """gather_stats(fin, fout[, lb][, ub][, threshold][, empty][, alternate][,
+                    comments])
     Gathers letter statistics from a given file.
 
     Positional arguments:
@@ -27,6 +31,18 @@ def gather_stats(fin, fout, lb=None, ub=None):
     Keyword arguments:
     [lb=None] (int) -- lower bound letter index (None to start at beginning)
     [ub=None] (int) -- upper bound letter index (None to process until end)
+    [threshold=0] (int) -- minimum number of required instances for a substring
+                           to be included in the statistics
+    [empty=False] (bool) -- whether to include empty statistic categories in
+                            the output file (True to include all, False to skip
+                            empty)
+    [alternate=False] (bool) -- whether to include substrings that switch
+                                between vowels and consonants more than once
+                                (True to include all, False to exclude
+                                substrings that alternate more than once)
+    [comments=True] (bool) -- whether to include comments in the output INI
+                              file to explain the naming convention behind the
+                              sections
 
     The input file should consist of a dictionary text file, with a single word
     on each line.
@@ -99,23 +115,96 @@ def gather_stats(fin, fout, lb=None, ub=None):
                         end = True
                     # Get the current substring
                     ss = word[j:j+num]
+                    # Skip if alternating
+                    if alternate == False and _alternating(ss) == True:
+                        continue
                     # Determine the types of letters
                     cat = _categorize(ss) # set of valid type indices
                     for t in cat:
-                        # Log in dictionary depending on position
-                        pass
-
-            ###
-            print(str(num) + ": " + word)
+                        # All
+                        if ss not in stats[num-1][t][0]:
+                            stats[num-1][t][0][ss] = 1
+                        else:
+                            stats[num-1][t][0][ss] += 1
+                        # Beginning
+                        if beg == True:
+                            if ss not in stats[num-1][t][1]:
+                                stats[num-1][t][1][ss] = 1
+                            else:
+                                stats[num-1][t][1][ss] += 1
+                        # End
+                        if end == True:
+                            if ss not in stats[num-1][t][2]:
+                                stats[num-1][t][2][ss] = 1
+                            else:
+                                stats[num-1][t][2][ss] += 1
+                        # Middle
+                        if beg == False and end == False:
+                            if ss not in stats[num-1][t][3]:
+                                stats[num-1][t][3][ss] = 1
+                            else:
+                                stats[num-1][t][3][ss] += 1
 
     # Load statistic dictionaries into INI file parser
-    config = configparser.ConfigParser()
+    config = configparser.ConfigParser(allow_no_value=True)
+    for i in range(len(dic_numbers)):
+        for j in range(len(dic_types)):
+            for k in range(len(dic_pos)):
+                # Skip if empty
+                if empty == False and len(stats[i][j][k]) < 1:
+                    continue
+                # Skip entries below the threshold
+                if threshold > 0:
+                    for s in tuple(stats[i][j][k]):
+                        if stats[i][j][k][s] < threshold:
+                            del stats[i][j][k][s]
+                # Otherwise load dictionary
+                config[dic_numbers[i] + dic_types[j] + dic_pos[k]] = \
+                                      stats[i][j][k]
 
     # Write INI file
-    ###with open(fout, 'w') as f:
-    ###    config.write(f)
+    with open(fout, 'w') as f:
+        config.write(f)
 
-    del config
+    # Write comments
+    if comments == True:
+        # Define comment string
+        com = "; Statistics generated from '" + fin + "'"
+        if lb != None or ub != None:
+            com += "(lines "
+            if lb == None:
+                com += "0 - "
+            else:
+                com += str(lb) + " - "
+            if ub == None:
+                com += str(i-1) + ")"
+            else:
+                com += str(ub-1) + ")"
+        com += ".\n"
+        if threshold > 0:
+            com += "; Threshold: " + str(threshold) + "\n"
+        if empty == False:
+            com += "; Empty fields excluded.\n"
+        if alternate == False:
+            com += "; Excluding alternating CVC and VCV sequences.\n"
+        com += ";\n; Each section below is a dictionary of substring " \
+               "frequencies.\n" \
+               "; The section names have the format:\n" \
+               ";     [<n>_<t>_<p>] \n" \
+               "; where:\n" \
+               ";     <n> -- length of substring\n" \
+               ";     <t> -- letter type ('a' all, 'c' consonant only,\n" \
+               ";            'v' vowel only, 'cv' consonant/vowel pair,\n" \
+               ";            'vc' vowel/consonant pair\n" \
+               ";     <p> -- position ('a' all, 'b' beginning, 'e' end,\n" \
+               ";            'm' middle)\n\n"
+
+        # Write comments to beginning of file
+        with open(fout, 'r') as f:
+            for line in f:
+                com += line
+        with open(fout, 'w') as f:
+            f.writelines(com[:-1])
 
 #==============================================================================
 
@@ -169,6 +258,42 @@ def _categorize(s):
 
 #==============================================================================
 
+def _alternating(s, num=2):
+    """_alternating(s[, num]) -> bool
+    Determines whether a substring alternates between consonants and vowels.
+
+    Positional arguments:
+    s (str) -- string to categorize
+
+    Keyword arguments:
+    [num=2] (int) -- number of switches needed to constitute "alternating"
+
+    Returns:
+    (bool) -- True if the string switches back and forth between consonants and
+              vowels more than once, and False otherwise
+    """
+
+    # Alternation requires at least 3 characters
+    if len(s) < 3:
+        return False
+
+    # Go through each letter and count switches
+    switches = 0 # number of consonant/vowel switches
+    con = False # whether the current character is a consonant
+    if s[0] in CONSONANTS:
+        con = True
+    for c in s[1:]:
+        if (c in CONSONANTS) != con:
+            con = not con
+            switches += 1
+        if switches >= num:
+            return True
+
+    # If too few switches were found, the string does not alternate
+    return False
+
+#==============================================================================
+
 # Automatically process dwyl dictionary
 if __name__ == "__main__":
-    gather_stats("words_alpha.txt", "word_statistics.ini", lb=5, ub=6)
+    gather_stats("words_alpha.txt", "word_statistics.ini")
