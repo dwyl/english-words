@@ -1,6 +1,6 @@
 # List Of English Words
 
-This is a fork of the [dwyl](https://github.com/dwyl) [List of English Words](https://github.com/dwyl/english-words) repo, to be used for gathering English letter distribution statistics. I've edited down the contents of the repo to include only the files I need, and added some Python scripts for gathering statistics. The authors' original [(un)license](https://github.com/dwyl/english-words/blob/master/LICENSE.md) remains intact.
+This is a fork of the [dwyl](https://github.com/dwyl) [List of English Words](https://github.com/dwyl/english-words) repo, to be used for gathering English letter distribution statistics. I've edited down the contents of the repo to include only the files I need and added some Python scripts for gathering statistics, primarily as part of the setup for my [Slight Misspeller](https://github.com/adam-rumpf/slight-misspeller) project. The authors' original [(un)license](https://github.com/dwyl/english-words/blob/master/LICENSE.md) remains intact.
 
 See the original README below.
 
