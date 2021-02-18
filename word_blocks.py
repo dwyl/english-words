@@ -1,13 +1,8 @@
-### Gather a dictionary of all possible blocks of the following type:
-### C blocks at beginning
-### V blocks at end
-### VC blocks at beginning
-### VC blocks anywhere else
-### CV words (as the entire word)
-### Particularly common letter pairs (i.e. if some letter almost always appears next to some other letter).
-### In all cases ignore the length of the block. Keep the number of occurrences, with an option to drop the entry if there are too few.
+"""A script for gathering letter block statistics from a word list.
 
-"""A script for gathering letter block statistics from a word list."""
+Counts occurrences of contiguous blocks of consonants and vowels in various
+parts of a word.
+"""
 
 import configparser
 import re
@@ -56,9 +51,6 @@ def gather_blocks(fin, fout, lb=None, ub=None, threshold=0, comments=True):
     blocks["v"] = {} # vowels
     blocks["vc"] = {} # vowel/consonant
     blocks["c_b"] = {} # consonants at beginning
-    blocks["v_e"] = {} # vowels at end
-    blocks["vc_b"] = {} # vowel/consonant at beginning
-    blocks["vc_me"] = {} # vowel/consonant not at beginning
     blocks["v_w"] = {} # vowel-only words
     blocks["cv_w"] = {} # consonant/vowel entire words
 
@@ -83,19 +75,51 @@ def gather_blocks(fin, fout, lb=None, ub=None, threshold=0, comments=True):
 
             # Classify block types
             for j in range(len(ws)):
-                # Count pure blocks
+                
+                # Count consonant blocks
                 if ws[j][0] in CONSONANTS:
                     if ws[j] not in blocks["c"]:
                         blocks["c"][ws[j]] = 1
                     else:
                         blocks["c"][ws[j]] += 1
+                    # Count consonants at beginning
+                    if j == 0:
+                        if ws[j] not in blocks["c_b"]:
+                            blocks["c_b"][ws[j]] = 1
+                        else:
+                            blocks["c_b"][ws[j]] += 1
+                
+                # Count vowel blocks
                 if ws[j][0] in VOWELS:
                     if ws[j] not in blocks["v"]:
                         blocks["v"][ws[j]] = 1
                     else:
                         blocks["v"][ws[j]] += 1
+                    # Count vowel words
+                    if len(ws) == 1:
+                        if ws[j] not in blocks["v_w"]:
+                            blocks["v_w"][ws[j]] = 1
+                        else:
+                            blocks["v_w"][ws[j]] += 1
 
-                ##############
+                # Move on only for counting pairs
+                if j >= len(ws) - 1:
+                    continue
+
+                # Count vowel/consonant pairs
+                if ws[j][0] in VOWELS and ws[j+1][0] in CONSONANTS:
+                    if ws[j]+ws[j+1] not in blocks["vc"]:
+                        blocks["vc"][ws[j]+ws[j+1]] = 1
+                    else:
+                        blocks["vc"][ws[j]+ws[j+1]] += 1
+
+                # Count consonant/vowel words
+                if (len(ws) == 2 and ws[j][0] in CONSONANTS
+                    and word in VOWELS):
+                    if word not in blocks["cv_w"]:
+                        blocks["cv_w"][word] = 1
+                    else:
+                        blocks["cv_w"][word] += 1
 
             # Record V words
             if len(ws) == 1 and ws[0][0] in VOWELS:
@@ -105,20 +129,28 @@ def gather_blocks(fin, fout, lb=None, ub=None, threshold=0, comments=True):
             if len(ws) == 2 and ws[0][0] in CONSONANTS and ws[1][0] in VOWELS:
                 blocks["cv_w"][word] = 1
 
-    # Delete entries below threshold
-    if threshold > 0:
-        for key in blocks:
-            # Skip whole-word lists
-            if 'w' in key:
-                continue
-            for k in blocks[key]:
-                if bocks[key][k] < threshold:
-                    del blocks[key][k]
-
-    # Load block dictionaries into INI file parser
+    # Initialize INI file parser
     config = configparser.ConfigParser(allow_no_value=True)
-    for key in blocks:
-        config[key] = blocks[key]
+
+    # Obey threshold
+    if threshold > 0:
+        # If using a threshold, reduce each block dictionary
+        for key in blocks:
+            # Always keep whole words
+            if key == "v_w" or key == "cv_w":
+                config[key] = blocks[key]
+                continue
+            # Otherwise keep only thresholded values
+            dic = {} # temporary reduced dictionary
+            for k in blocks[key]:
+                if blocks[key][k] >= threshold:
+                    dic[k] = blocks[key][k]
+            config[key] = dic
+            del dic
+    else:
+        # If no threshold, load blocks as-is
+        for key in blocks:
+            config[key] = blocks[key]
 
     # Write INI file
     with open(fout, 'w') as f:
@@ -147,9 +179,6 @@ def gather_blocks(fin, fout, lb=None, ub=None, threshold=0, comments=True):
                ";     v -- vowels\n" \
                ";     vc -- vowel/consonant\n" \
                ";     c_b -- consonant at beginning\n" \
-               ";     v_e -- vowel at end\n" \
-               ";     vc_b -- vowel/consonant at beginning\n" \
-               ";     vc_me -- vowel/consonant not at beginning\n" \
                ";     v_w -- vowel-only words\n" \
                ";     cv_w -- consonant/vowel entire words\n\n"
         
@@ -168,9 +197,4 @@ def gather_blocks(fin, fout, lb=None, ub=None, threshold=0, comments=True):
 
 # Automatically process dwyl dictionary
 if __name__ == "__main__":
-    gather_blocks("words_alpha.txt", "word_blocks.ini", ub=100)
-
-### Plan: Gather a list of all allowed syllables into an INI file (just gather the keys, no values).
-### In the misspeller, after splitting the word, we gather clusters to make syllables, and then randomly replace some characters with other characters of the same type (with some special rules to keep some things grouped, like qu or th).
-### Then we check the result against our list of whitelisted syllable structures to make sure that it's valid.
-### The required probabilities would be the probabilities to transform any given character in any given part of the word, or maybe to simplify just the probability of transforming any given consonant or vowel (or maybe separately inserting or deleting, all of which would be mutually exclusive). Also consider rearranging the syllables of a word, accomplished by moving around VC blocks or just swapping one C block for another or one V block for another.
+    gather_blocks("words_alpha.txt", "word_blocks.ini")
