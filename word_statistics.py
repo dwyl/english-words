@@ -300,6 +300,76 @@ def _alternating(s, num=2):
 
 #==============================================================================
 
+def pair_frequency(fin, fout, lb=None, ub=None):
+    """pair_frequency(fin, fout[, lb][, ub])
+    Generates a table of letter pair frequencies
+
+    Positional arguments:
+    fin (str) -- name of input word list file
+    fout (str) -- name of output statistic file
+
+    Keyword arguments:
+    [lb=None] (int) -- lower bound letter index (None to start at beginning)
+    [ub=None] (int) -- upper bound letter index (None to process until end)
+
+    The input file should consist of a dictionary text file, with a single word
+    on each line.
+
+    The output is a tab-separated text file containing the frequencies of all
+    possible letter pairs. Row i, column j indicates the letter pair ij.
+
+    The optional bounds can be used to process only a limited range of the word
+    list. Every list index in the interval [lb,ub) is included. Setting either
+    to None causes that bound to be ignored.
+    """
+
+    # Start timer
+    start = time.time()
+
+    # Initialize a dictionary with every possible letter pair
+    pairs = {}
+    alphabet = "abcdefghijklmnopqrstuvwxyz"
+    for i in alphabet:
+        for j in alphabet:
+            pairs[i+j] = 0
+    
+    # Read word list line-by-line and record statistics
+    with open(fin, 'r') as f:
+        i = -1 # current word index
+        for line in f:
+            i += 1
+            
+            # Respect bounds
+            if lb != None and i < lb:
+                continue
+            if ub != None and i >= ub:
+                break
+
+            # Get current word
+            word = line.strip()
+
+            # Go through each letter pair
+            for j in range(len(word)-1):
+                pairs[word[j]+word[j+1]] += 1
+    
+    # Write word list to output file
+    with open(fout, 'w') as f:
+        for i in alphabet:
+            line = "" # line of output table
+            for j in alphabet:
+                line += str(pairs[i+j])
+                if j != 'z':
+                    line += '\t'
+            # Write line to file
+            print(line, file=f)
+
+    # Report total time
+    print("Processed '" + fin + "' after " + str(time.time() - start) +
+          " seconds.")
+
+#==============================================================================
+
 # Automatically process dwyl dictionary
 if __name__ == "__main__":
     gather_stats("words_alpha.txt", "word_statistics.ini")
+    pair_frequency("words_alpha.txt", "letter_pairs.txt")
