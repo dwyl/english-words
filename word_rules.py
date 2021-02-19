@@ -18,14 +18,24 @@ _Z = ord('z')
 
 #==============================================================================
 
-def forbid_tuples(fin, fout, n):
-    """forbid_tuples(fin, fout)
+def forbid_tuples(fin, fout, n, comments=True, ignore=set(), group=set()):
+    """forbid_tuples(fin, fout, n[, comments][, ignore][, group])
     Generates a list of n-tuples forbidden in a given word block list.
 
     Positional arguments:
-    n (int) -- size of n-tuple (should not exceed 4 to avoid slowdown)
     fin (str) -- name of input word list file
     fout (str) -- name of output statistic file
+    n (int) -- size of n-tuple (should not exceed 4 to avoid slowdown)
+    
+    Keyword arguments:
+    [comments=True] (bool) -- whether to include comments in the output INI
+                              file to explain the naming convention behind the
+                              sections
+    [ignore={}] (set(str)) -- set of fields to ignore for the purposes of rule
+                              creation
+    [group={}] (set(str)) -- set of letters to consider grouping (i.e. pairs
+                             of letters that often appear together, like "qu"
+                             and "th")
 
     The input file should be an INI file of the format produced by
     word_blocks.py containing various categories of letter blocks.
@@ -33,8 +43,11 @@ def forbid_tuples(fin, fout, n):
     The output is an INI file containing forbidden n-letter combinations which
     define the input file's letter blocks. For each of the input file's
     fields, a corresponding field of the output file defines the forbidden
-    letter combinations, and another corresponding field lists exceptions to
-    these rules.
+    letter combinations.
+    
+    A list of letter groups is also included. These are groups of letters that
+    commonly appear together, and are explicitly given as an argument
+    independent of the word block file.
     """
 
     # Start timer
@@ -55,8 +68,8 @@ def forbid_tuples(fin, fout, n):
     i = 0
     for block in order:
 
-        # Skip default
-        if block == "DEFAULT":
+        # Skip default and ignored fields
+        if block == "DEFAULT" or block in ignore:
             continue
 
         # Get the word blocks as a list
@@ -111,18 +124,19 @@ def forbid_tuples(fin, fout, n):
 
         # Keep the final rule list
         block_rules[block] = rules
-
+        
+        ###
         print(block + " : " + str(list(out)))
 
         i += 1
+    
+    del blocks
 
-    ### Notes:
-    ### The 'c' rules apply to anything that includes 'c', so no need to repeat.
-    ### (So the 'c' rules apply to anything with a 'c' in it.)
-    ### Same goes for 'v'.
-    ### Also, 'c_b' applies to everything in 'cv_w'.
-    ### (So the 'c_b' rules apply to everything beginning with 'c' and
-    ### containing 'w'.)
+    ### Write to output file, write comment lines. Ignore ignored fields, both
+    ### in the actual fields and in the comments.
+    ### Possibly also include support for defining a letter pair list, so that
+    ### a single INI file can define all of the phonological rules.
+    ### Also write the 'groups' set.
 
     # Report total time
     print("Processed '" + fin + "' after " + str(time.time() - start) +
@@ -256,8 +270,8 @@ def match(pat, lst, ignore=set()):
     goal is to iteratively choose the rules that exclude the fewest valid
     letter blocks, ignoring any defined exceptions. Here the pattern is the
     considered rule, the list is the set of word blocks, and the ignore-list is
-    the set of exceptions. The returned set is the set of words that would be
-    deleted by the rule.
+    the set of exceptions. The returned set is the set of valid words that
+    would be deleted by the rule.
     """
 
     # Initialize output set
@@ -289,3 +303,10 @@ if __name__ == "__main__":
 ### There are no consonant pairs or triples forbidden from the beginning of a
 ### word that are not forbidden elsewhere.
 ### There are no vowel words that are not forbidden as strings elsewhere.
+
+### When generating larger n-tuple rules, skip rules that are already covered
+### by smaller forbidden pairs.
+### This could be accomplished by placing the existing rule genration inside a
+### loop over different values of n, so that we always generate smaller n-tuple
+### rules before larger ones, and always checking whether the proposed rule is
+### already forbidden by an existing rule.
