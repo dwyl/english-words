@@ -123,24 +123,61 @@ def forbid_tuples(fin, fout, n, comments=True, ignore=set(), group=set()):
                 out[r] = None
 
         # Keep the final rule list
-        block_rules[block] = rules
-        
-        ###
-        print(block + " : " + str(list(out)))
+        block_rules[block] = out
 
         i += 1
     
     del blocks
 
-    ### Write to output file, write comment lines. Ignore ignored fields, both
-    ### in the actual fields and in the comments.
-    ### Possibly also include support for defining a letter pair list, so that
-    ### a single INI file can define all of the phonological rules.
-    ### Also write the 'groups' set.
+    # Initialize output INI file parser
+    config = configparser.ConfigParser(allow_no_value=True)
+
+    # Load dictionaries into parser
+    for block in block_rules:
+        config[block] = block_rules[block]
+
+    # Load letter groups into parser
+    config["group"] = {}
+    for g in group:
+        config["group"][g] = None
+
+    # Write INI file
+    with open(fout, 'w') as f:
+        config.write(f)
+
+    # Write comments
+    if comments == True:
+        # Define comment string
+        com = "; Substring rules generated from '" + fin + "'.\n"
+        com += ";\n; Each section below is a block of characters.\n" \
+               "; The section names are as follows:\n"
+        if "c" not in ignore:
+            com += ";     c -- consonants\n"
+        if "v" not in ignore:
+            com += ";     v -- vowels\n"
+        if "vc" not in ignore:
+            com += ";     vc -- vowel/consonant\n"
+        if "c_b" not in ignore:
+            com += ";     c_b -- consonant at beginning\n"
+        if "v_w" not in ignore:
+            com += ";     v_w -- vowel-only words\n"
+        if "cv_w" not in ignore:
+            com += ";     cv_w -- consonant/vowel entire words\n"
+        com += ';     group -- letter groups\n\n'
+        
+        # Write comments to beginning of file
+        with open(fout, 'r') as f:
+            for line in f:
+                com += line
+        with open(fout, 'w') as f:
+            f.writelines(com[:-1])
 
     # Report total time
     print("Processed '" + fin + "' after " + str(time.time() - start) +
           " seconds.")
+    print("Category\tRules")
+    for block in block_rules:
+        print(block + '\t' + str(len(block_rules[block])))
 
 #==============================================================================
 
@@ -292,7 +329,9 @@ def match(pat, lst, ignore=set()):
 #==============================================================================
 
 if __name__ == "__main__":
-    forbid_tuples("word_blocks.ini", "forbid_words_5.ini", 3)###2)
+    g = {"ch", "gh", "ph", "sh", "th", "ng", "qu"}
+    forbid_tuples("word_blocks_5.ini", "word_rules_5.ini", 2, group=g)
+    forbid_tuples("word_blocks.ini", "word_rules.ini", 2, group=g)
 
 ### Observations:
 ### As expected, we get more exclusion rules when we use the smaller block list.
