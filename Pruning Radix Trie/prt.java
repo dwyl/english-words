@@ -2,7 +2,6 @@ import java.util.*;
 public class prt {
     prtnode root;
     public prtnode[] search(int k, String query){
-        
         // Code to be implemented
         prq quePrq = new prq(k);
         quePrq.add(findnode(query));
@@ -78,7 +77,7 @@ public class prt {
         root = new prtnode();
         for (int i = 0; i < dictionary.length; i++) {
             try {
-                insert(i+1, dictionary[i]);
+                insert(dictionary.length-i, dictionary[i]);
                 
             } catch (Exception e) {
                 System.out.println("error");

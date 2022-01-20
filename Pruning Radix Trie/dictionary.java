@@ -1,3 +1,5 @@
+import java.util.*;
+import java.io.*;
 public class dictionary {
     public static String[] array = {
         "a",
@@ -3789,6 +3791,23 @@ public class dictionary {
     }
     public String[] getarray(int k){
         return array;
+    }
+    public String[] dictfromfile(String st){
+        Vector<String> vs = new Vector<String>();
+        try {
+            FileInputStream fstream = new FileInputStream(st);
+            Scanner s = new Scanner(fstream);
+            while (s.hasNextLine()) vs.add(s.nextLine());
+        } catch (FileNotFoundException e){
+            System.out.println("File not found");
+        }
+        String[] answer = new String[vs.size()];
+        int h = 0;
+        for (String string : vs) {
+            answer[h++] = string;
+        }
+        return answer;
+
     }
 
 }
