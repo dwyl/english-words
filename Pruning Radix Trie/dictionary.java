@@ -3787,5 +3787,8 @@ public class dictionary {
         return array[index];
 
     }
+    public String[] getarray(int k){
+        return array;
+    }
 
 }

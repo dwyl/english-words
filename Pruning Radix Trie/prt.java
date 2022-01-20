@@ -2,7 +2,7 @@ import java.util.*;
 public class prt {
     prtnode root;
     public prtnode[] search(int k, String query){
-        prtnode results[] = new prtnode[k];
+        
         // Code to be implemented
         prq quePrq = new prq(k);
         quePrq.add(findnode(query));
@@ -13,14 +13,19 @@ public class prt {
                 if(prtn != null)
                 quePrq.add(prtn);
             }
+            if(pz.rank > 0)
             quePrq.add2(pz);
         }
         int j = 1;
+        prtnode results[] = new prtnode[quePrq.que2.size()];
         for (prtnode px : quePrq.que2) {
-            results[k-j] = px;
+            results[quePrq.que2.size()-j] = px;
             j++;
         }
         return results;
+    }
+    public prtnode[] search(String query){
+        return search(Integer.MAX_VALUE, query);
     }
     public void insert(int rank, String keyword){
         key keyx = new key(keyword);
