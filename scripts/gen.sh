@@ -32,4 +32,4 @@ cp words.txt words_alpha.txt
 grep -v '[[:alpha:]]*' words_alpha.txt
 python3 scripts/create_json.py words_alpha.txt > words_dictionary.json
 rm *.zip
-find . -type f -name "words*" -maxdepth 1 -execdir zip '{}.zip' '{}' \;
+find . -maxdepth 1 -type f -name "words*" -execdir zip '{}.zip' '{}' \;
