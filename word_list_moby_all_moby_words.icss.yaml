@@ -216,13 +216,13 @@
 
     contributors: 
     - name: Grant Ward
-      url: http://www.gutenberg.org/browse/authors/w#a1132
+      url: https://www.gutenberg.org/browse/authors/w#a1132
       uniqid: grady@gradyward.com
     - name: Mike Pullen
       role: prepared
       uniqid: globaltraveler5565@yahoo.com
     - name: Project Gutenberg
-      url: http://www.gutenberg.org/etext/3202
+      url: https://www.gutenberg.org/etext/3202
       role: distributed
       desc: |-
         
