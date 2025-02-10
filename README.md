@@ -1,6 +1,5 @@
 List Of English Words
 =============
-
 A text file containing over 466k English words.
 
 While searching for a list of english words (for an auto-complete tutorial)
