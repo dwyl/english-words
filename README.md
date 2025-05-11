@@ -21,3 +21,8 @@ Files you may be interested in:
 If you are using Python, you can easily load this file and use it as a dictionary for faster performance. All the words are assigned with 1 in the dictionary.
 
 See [read_english_dictionary.py](read_english_dictionary.py) for example usage.
+
+# Atividade Git – Danilo Vilela Franco
+
+Este arquivo foi criado como parte da Atividade de Bootcamp I (CEUB).  
+O objetivo é praticar os conceitos de **fork**, **commit** e **pull request** no GitHub.
