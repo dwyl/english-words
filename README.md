@@ -21,3 +21,16 @@ Files you may be interested in:
 If you are using Python, you can easily load this file and use it as a dictionary for faster performance. All the words are assigned with 1 in the dictionary.
 
 See [read_english_dictionary.py](read_english_dictionary.py) for example usage.
+
+## Usage
+
+You can use this word list in your applications for tasks such as validation, autocomplete, or word games.
+
+Example in Python:
+
+```python
+with open("words.txt") as f:
+    words = f.read().splitlines()
+
+word = "example"
+print(word in words)  # Check if the word exists in the list
